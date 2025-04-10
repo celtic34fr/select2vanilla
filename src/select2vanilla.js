@@ -127,8 +127,10 @@ class Select2Vanilla {
             this.customSelect.querySelector('.select2-vanilla__placeholder').style.display = 'none';
 
             // validation de la non présence de l'option choisie
-            const item = this.customSelect.querySelector('select2-vanilla__selected-option[data-value="${option.dataset.value}"]');
+            const optionValue = option.dataset.value;
+            const item = this.customSelect.querySelector('.select2-vanilla__selected-option[data-value="'+ optionValue +'"]');
             if (item !== null) {
+                this._closeDropdown();
                 return;
             }
 
