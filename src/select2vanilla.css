@@ -1,7 +1,6 @@
 /* feuille de style minimale pour Select2Vanilla */
 
 .select2-vanilla {
-    width: 200px; /* Ajuste la largeur comme nécessaire */
     border: 1px solid #ccc; /* Cadre léger */
     background-color: #fff; /* Fond blanc */
     padding: 5px;

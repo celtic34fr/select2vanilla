@@ -5,6 +5,7 @@ class Select2Vanilla {
     constructor(objOrSelector, options = {}) {
         const defaultOptions = {
             placeholder: "Sélectionner...",
+            width: '100%',
             searchEnabled: options.searchEnabled !== undefined ? options.searchEnabled : true,
             onSelect: null,
             multiple: false,
@@ -51,10 +52,10 @@ class Select2Vanilla {
         // Créer le composant personnalisé
         const customSelect = document.createElement('div');
         customSelect.classList.add('select2-vanilla');
+        customSelect.style.width = this.options.width;
         customSelect.innerHTML = `
             <div class="select2-vanilla__selection">
                 <span class="select2-vanilla__selected"></span>
-                <span class="select2-vanilla__arrow"></span>
             </div>
             <div class="select2-vanilla__dropdown">
                 <input type="text" class="select2-vanilla__search" placeholder="Rechercher...">
@@ -65,7 +66,10 @@ class Select2Vanilla {
         // Ajouter le placeholder si défini
         const placeholder = this.select.getAttribute('placeholder') || this.options.placeholder || '';
         if (placeholder) {
-            customSelect.querySelector('.select2-vanilla__selected').textContent = placeholder;
+            const spanPlaceholder = document.createElement('span');
+            spanPlaceholder.classList.add('select2-vanilla__placeholder');
+            spanPlaceholder.textContent = placeholder;
+            customSelect.querySelector('.select2-vanilla__selected').appendChild(spanPlaceholder);
         }
 
         // Ajouter le customSelect et le select dans le conteneur
@@ -120,54 +124,69 @@ class Select2Vanilla {
 
     _bindOptionEvents(option) {
         option.addEventListener('click', () => {
+            this.customSelect.querySelector('.select2-vanilla__placeholder').style.display = 'none';
+
+            // validation de la non présence de l'option choisie
+            const item = this.customSelect.querySelector('select2-vanilla__selected-option[data-value="${option.dataset.value}"]');
+            if (item !== null) {
+                return;
+            }
+
             if (this.options.multiple) {
                 // Choix multiple
                 const selectedOptions = this.customSelect.querySelector('.select2-vanilla__selected');
-                const selectedOption = this.select.querySelector(`option[value="${optionElement.dataset.value}"]`);
+                const selectedOption = this.select.querySelector(`option[value="${option.dataset.value}"]`);
                 selectedOption.selected = true;
         
                 // Ajouter l'option sélectionnée à la liste des options sélectionnées
-                const selectItem = document.createElement('p');
-                selectItem.classList.add('select2-vanilla__select_item');
-                selectItem.dataset.value = optionElement.dataset.value;
+                const selectedItem = document.createElement('span');
+                selectedItem.classList.add('select2-vanilla__selected-option');
+                selectedItem.dataset.value = option.dataset.value;
         
-                const selectOption = document.createElement('span');
-                selectOption.classList.add('select2-vanilla__selected-option-text');
-                selectOption.textContent = optionElement.textContent;
-                selectItem.appendChild(selectOption);
+                const selectedText = document.createElement('span');
+                selectedText.classList.add('select2-vanilla__selected-option-text');
+                selectedText.textContent = option.textContent;
+                selectedItem.appendChild(selectedText);
         
-                const selectRemove = document.createElement('span');
-                selectRemove.classList.add('select2-vanilla__selected-option-remove');
-                selectRemove.textContent = 'x';
-                selectItem.appendChild(selectRemove);
+                const selectedRemove = document.createElement('span');
+                selectedRemove.classList.add('select2-vanilla__selected-option-remove');
+                selectedRemove.textContent = 'x';
+                selectedItem.appendChild(selectedRemove);
         
-                selectRemove.addEventListener('click', () => {
-                    // Supprimer l'option sélectionnée
+                selectedRemove.addEventListener('click', () => {
+                    const item = selectedRemove.parentNode;
+                    // Supprimer la sélection
                     selectedOption.selected = false;
-                    selectItem.remove();
+                    item.remove();
                     this._resetPlaceholder();
                 });
         
-                selectedOptions.appendChild(selectItem);
+                selectedOptions.appendChild(selectedItem);
             } else {
                 // Choix unique
                 this.select.value = option.dataset.value;
-                this.customSelect.querySelector('.select2-vanilla__selected').textContent = option.textContent;
         
                 // Ajouter une apparence de bulle avec une croix en haut à droite
                 const selectedOption = this.customSelect.querySelector('.select2-vanilla__selected');
-                selectedOption.classList.add('select2-vanilla__selected-option');
-                selectedOption.innerHTML = `
-                    <span class="select2-vanilla__selected-option-text">${option.textContent}</span>
-                    <span class="select2-vanilla__selected-option-remove">×</span>
-                `;
+                const selectedItem = document.createElement('span');
+                selectedItem.classList.add('select2-vanilla__selected-option');
+                selectedItem.dataset.value = option.dataset.value;
+                const selectedText = document.createElement('span');
+                selectedText.classList.add('select2-vanilla__selected-option-text');
+                selectedText.textContent = option.textContent;
+                selectedItem.appendChild(selectedText);
+                const selectedRemove = document.createElement('span');
+                selectedRemove.classList.add('select2-vanilla__selected-option-remove');
+                selectedRemove.textContent = '×';
+                selectedItem.appendChild(selectedRemove);
+                selectedOption.appendChild(selectedItem);
         
                 // Ajouter un écouteur d'événement pour supprimer la sélection
-                selectedOption.querySelector('.select2-vanilla__selected-option-remove').addEventListener('click', () => {
+                selectedRemove.addEventListener('click', () => {
+                    const item = selectedRemove.parentNode;
                     // Supprimer la sélection
                     this.select.value = '';
-                    this.customSelect.querySelector('.select2-vanilla__selected').textContent = '';
-                    this.customSelect.querySelector('.select2-vanilla__selected').classList.remove('select2-vanilla__selected-option');
+                    item.remove();
                     this._resetPlaceholder();
                 });
             }
@@ -178,8 +197,9 @@ class Select2Vanilla {
 
     // Méthode pour remettre le placeholder si la zone de sélection est vide
     _resetPlaceholder() {
-        if (this.customSelect.querySelector('.select2-vanilla__selected').textContent === '') {
-            this.customSelect.querySelector('.select2-vanilla__selected').textContent = this.options.placeholder;
+        const selectedItems = this.customSelect.querySelectorAll('.select2-vanilla__select-option');
+        if (selectedItems.length === 0) {
+            this.customSelect.querySelector('.select2-vanilla__placeholder').style.display = 'block';
         }
     }
 }
