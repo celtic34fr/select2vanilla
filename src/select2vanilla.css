@@ -54,3 +54,22 @@
     background-color: #f0f0f0;
   }
   
+  .select2-vanilla__selected-option {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  
+  .select2-vanilla__selected-option-text {
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .select2-vanilla__selected-option-remove {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+  }
