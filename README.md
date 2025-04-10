@@ -1,0 +1,1 @@
+Adaptation de la librairie jQuery Select2 et Javascript (Vanilla)
