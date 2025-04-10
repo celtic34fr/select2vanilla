@@ -31,6 +31,7 @@ class Select2Vanilla {
             this_addSearch();
         }
         */
+        this._bindEvents();
     }
 
     _createSelect2Structure() {
@@ -89,5 +90,13 @@ class Select2Vanilla {
     
           optionsList.appendChild(optionElement);
         });
+    }
+
+    _bindEvents() {
+        const selection = this.customSelect.querySelector('.select2-vanilla__selection');
+        selection.addEventListener('click', () => {
+            const dropdown = this.customSelect.querySelector('.select2-vanilla__dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        })
     }
 }
