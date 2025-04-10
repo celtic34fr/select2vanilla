@@ -120,7 +120,7 @@ class Select2Vanilla {
 
     _bindOptionEvents(option) {
         option.addEventListener('click', () => {
-            if (this.multiple) {
+            if (this.options.multiple) {
                 // Choix multiple
                 const selectedOptions = this.customSelect.querySelector('.select2-vanilla__selected');
                 const selectedOption = this.select.querySelector(`option[value="${optionElement.dataset.value}"]`);
