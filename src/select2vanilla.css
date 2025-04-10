@@ -1,0 +1,56 @@
+/* feuille de style minimale pour Select2Vanilla */
+
+.select2-vanilla {
+    width: 200px; /* Ajuste la largeur comme nécessaire */
+    border: 1px solid #ccc; /* Cadre léger */
+    background-color: #fff; /* Fond blanc */
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 4px; /* Coins arrondis */
+    position: relative;
+    display: inline-block;
+  }
+  
+  .select2-vanilla__selection {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .select2-vanilla__arrow {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #888;
+  }
+  
+  .select2-vanilla__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 10;
+  }
+  
+  .select2-vanilla__options {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .select2-vanilla__option {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .select2-vanilla__option:hover {
+    background-color: #f0f0f0;
+  }
+  

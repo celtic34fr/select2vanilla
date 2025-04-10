@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Select - Étape 1</title>
+  <link rel="stylesheet" href="../src/select2vanilla.css">
+</head>
+<body>
+    <select id="pays">
+        <option value="fr">France</option>
+        <option value="be">Belgique</option>
+        <option value="ch">Suisse</option>
+    </select>
+    <script src="../src/select2vanilla.js"></script>
+    <script>
+        new Select2Vanilla("#pays", {
+            placeholder: "Sélectionner un pays",
+        });
+    </script>
+</body>
+</html>
