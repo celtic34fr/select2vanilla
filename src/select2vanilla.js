@@ -98,9 +98,24 @@ class Select2Vanilla {
 
         selectedRemove.addEventListener('click', () => {
             const item = selectedRemove.parentNode;
+            // suppression sélection dans this.select
+            let selectValue = item.dataset.value;
+            let selectOption = this.select.querySelector('[value="' + selectValue + '"]');
+            if (selectOption) {
+                if (selectOption.classList.contains('createOption')) {
+                    selectOption.remove();
+                } else {
+                    selectOption.selected = false;
+                }
+            }
+            // suppression sélection dans $this.customSelect.querySelector('.select2-vanilla__options')
+            let optionLi = this.customSelect.querySelector('.select2-vanilla__option[data-value="' + selectValue + '"]');
+            if (optionLi.classList.contains('createOption')) {
+                optionLi.remove();
+            }
             // Supprimer la sélection
-            selectedOption.selected = false;
             item.remove();
+
             this._resetPlaceholder();
         });
         return selectedItem;
@@ -255,7 +270,7 @@ class Select2Vanilla {
 
     // Méthode pour remettre le placeholder si la zone de sélection est vide
     _resetPlaceholder() {
-        const selectedItems = this.customSelect.querySelectorAll('.select2-vanilla__select-option');
+        const selectedItems = this.customSelect.querySelectorAll('.select2-vanilla__selected-option');
         if (selectedItems.length === 0) {
             this.customSelect.querySelector('.select2-vanilla__placeholder').style.display = 'block';
         }
@@ -274,6 +289,7 @@ class Select2Vanilla {
 
     _addNewOption(optionEl, selected = false) {
         let newOption = document.createElement('option');
+        newOption.classList.add('createOption');
         newOption.value = optionEl.dataset.value;
         newOption.textContent = optionEl.dataset.value;
         if (selected) {
@@ -282,7 +298,7 @@ class Select2Vanilla {
         this.select.appendChild(newOption);
 
         let newOptionLi = document.createElement('li');
-        newOptionLi.classList.add('select2-vanilla__option');
+        newOptionLi.classList.add('select2-vanilla__option', 'createOption');
         newOptionLi.dataset.value = optionEl.dataset.value;
         newOptionLi.textContent = optionEl.dataset.value;
         this.customSelect.querySelector('.select2-vanilla__options').appendChild(newOptionLi);
