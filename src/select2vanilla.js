@@ -27,11 +27,10 @@ class Select2Vanilla {
 
     _init() {
         this._createSelect2Structure();
-        /* gestion de la possibilité de recherche
+        /* gestion de la possibilité de recherche */
         if (this.options.searchEnabled) {
-            this_addSearch();
+            this._addSearch();
         }
-        */
         this._bindEvents();
     }
 
@@ -58,7 +57,6 @@ class Select2Vanilla {
                 <span class="select2-vanilla__selected"></span>
             </div>
             <div class="select2-vanilla__dropdown">
-                <input type="text" class="select2-vanilla__search" placeholder="Rechercher...">
                 <ul class="select2-vanilla__options"></ul>
             </div>
         `;
@@ -80,6 +78,16 @@ class Select2Vanilla {
 
         // remplissage du composant persdonalisé
         this._populateOptions();
+    }
+
+    _addSearch() {
+        // ajout en début de la zone de saisie pour recherche et ajout de sélection
+        const dropDown = this.customSelect.querySelector('.select2-vanilla__dropdown');
+        const searchInput = document.createElement('input');
+        searchInput.classList.add('select2-vanilla__search');
+        searchInput.type = 'text';
+        searchInput.placeholder = this.options.placeholder;
+        dropDown.prepend(searchInput);
     }
 
     _populateOptions() {
