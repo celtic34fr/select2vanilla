@@ -1,74 +1,88 @@
-/* feuille de style minimale pour Select2Vanilla */
-
-.select2-vanilla {
-    border: 1px solid #ccc; /* Cadre léger */
-    background-color: #fff; /* Fond blanc */
-    padding: 5px;
-    font-size: 14px;
-    border-radius: 4px; /* Coins arrondis */
-    position: relative;
-    display: inline-block;
-  }
-  
-  .select2-vanilla__selection {
+.select2vanilla {
     display: flex;
     align-items: center;
+    gap: 0px;
+}
+
+.select2vanilla label {
+    min-width: 0px;
+}
+
+.select2vanilla .form-errors {
+    margin-top: 5px;
+    color: #c00;
+}
+
+.s2v__customSelect {
+    position: relative;
+    display: block;
+    border: 1px solid #ccc;
     padding: 5px;
-    background-color: #f9f9f9;
     border-radius: 4px;
+    min-height: 40px;
+    background: #fff;
+    cursor: text;
+}
+
+.s2v__selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.s2v__selection input.s2v__search {
+    border: none;
+    flex: 1;
+    min-width: 120px;
+    padding: 5px;
+    outline: none;
+}
+
+.s2v__selected {
+    background: #e0e0e0;
+    padding: 5px 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.s2v__remove {
+    background: none;
+    border: none;
+    color: #333;
     cursor: pointer;
-  }
-  
-  .select2-vanilla__arrow {
-    margin-left: 10px;
     font-size: 14px;
-    color: #888;
-  }
-  
-  .select2-vanilla__dropdown {
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.s2v__dropdown {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background-color: white;
-    border: 1px solid #ccc;
     max-height: 200px;
     overflow-y: auto;
-    display: none;
-    z-index: 10;
-  }
-  
-  .select2-vanilla__options {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .select2-vanilla__option {
-    padding: 8px;
-    cursor: pointer;
-  }
-  
-  .select2-vanilla__option:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .select2-vanilla__selected-option {
-    background-color: #f0f0f0;
+    background: #fff;
     border: 1px solid #ccc;
-    padding: 5px 10px;
-    border-radius: 5px;
-    display: inline-block;
-  }
-  
-  .select2-vanilla__selected-option-text {
-    font-size: 14px;
-    font-weight: bold;
-    margin-right: 10px;
-  }
-  
-  .select2-vanilla__selected-option-remove {
-    font-size: 14px;
-    font-weight: bold;
+    border-top: none;
+    z-index: 1000;
+}
+
+.s2v__options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.s2v__options li {
+    padding: 8px 12px;
     cursor: pointer;
-  }
+}
+
+.s2v__options li:hover {
+    background-color: #f0f0f0;
+}
