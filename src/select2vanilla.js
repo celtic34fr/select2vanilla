@@ -1,6 +1,7 @@
 class Select2Vanilla {
     constructor(selectElement, args = {}) {
         this.select = selectElement;
+        this.selected = this.select.parentNode.querySelector('.selected');
 
         // Config par défaut + surcharge avec args
         this.config = Object.assign({
@@ -157,6 +158,25 @@ class Select2Vanilla {
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) optionInSelect.selected = true;
         }
+
+        // ajout de la valeur sélectionnée dans div.selected : partie selected de Select2Type
+        let hiddenSelected = this.selected.querySelector("input[value='" + value + "']");
+        if (!hiddenSelected) {
+            // si la valeur n'existe pas, on crée cette dernière
+            hiddenSelected = document.createElement('input');
+            hiddenSelected.type = 'hidden';
+            hiddenSelected.value = value;
+            let hiddenInputId = this.selected.getAttribute('id');
+            const hiddenInputs = this.selected.querySelectorAll('input[type="hidden"]');
+            const idx = hiddenInputs.length;
+            hiddenInputId += '_' + idx;
+            hiddenSelected.setAttribute('id', hiddenInputId);
+            const parts = hiddenInputId.split('_');
+            const hiddenInputName = parts[0] + parts.slice(1).map(p => `[${p}]`).join('');
+            hiddenSelected.setAttribute('name', hiddenInputName);
+            this.selected.appendChild(hiddenSelected);
+        }
+        // dans le cas ou la valeur est déjà présente, on ne fait rien pour éviter les doublons
     }
 
     removeSelectedValue(value, spanElement) {
@@ -167,6 +187,14 @@ class Select2Vanilla {
         if (this.select) {
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) optionInSelect.selected = false;
+        }
+
+        // suppression dans div.selected de la valeur sélectionnée
+        const hiddenInput = this.selected.querySelector('input[value="' + value + '"]');
+        if (hiddenInput) {
+            hiddenInput.remove();
+        } else {
+            console.log('CollectionType Valeur non trouvée : ' + value);
         }
     }
 
@@ -199,6 +227,7 @@ class Select2Vanilla {
         this.selectionDiv.querySelectorAll('.s2v__selected').forEach(span => span.remove());
         Array.from(this.select.options).forEach(option => option.selected = false);
         this.selectedValues = [];
+        this.selected.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
     }
 
     setValues(valuesArray) {
