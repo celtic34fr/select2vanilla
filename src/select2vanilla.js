@@ -1,9 +1,43 @@
+// Select2Vanilla.js
 class Select2Vanilla {
     constructor(selectElement, args = {}) {
+        if (!selectElement) {
+            return;
+        }
+        this.initialize(selectElement, args);
+
+        // Ajouter des événements
+        this.events = {
+            change: [],
+            filter: []
+        };
+    }
+
+    // Déclencher les événements
+    triggerEvent(eventName, data) {
+        if (!this.events) {
+            this.events = {
+                change: [],
+                filter: []
+            };
+        }
+
+        this.events[eventName].forEach(function (callback) {
+            callback(data);
+        });
+    };
+
+    setOption(optionName, value) {
+        this.options[optionName] = value;
+    }
+
+    getOption(optionName) {
+        return this.options[optionName];
+    }
+
+    initialize(selectElement, args = {}) {
         this.select = selectElement;
         this.selected = this.select.parentNode.querySelector('.selected');
-
-        // Config par défaut + surcharge avec args
         this.config = Object.assign({
             placeholder: 'Choisir ou saisir',
             choices: [],
@@ -11,14 +45,12 @@ class Select2Vanilla {
             multiple: false,
             allow_add: false
         }, args);
-
         this.container = null;
         this.selectionDiv = null;
         this.input = null;
         this.dropdown = null;
         this.options = [];
         this.selectedValues = [];
-
         this.init();
     }
 
@@ -26,9 +58,9 @@ class Select2Vanilla {
         this.buildCustomSelect();
         this.initEvents();
         this.closeOnOutsideClick();
-
-        if (this.config.data.length > 0) {
-            this.setValues(this.config.data);
+        if (Object.values(this.config.data).length > 0) {
+            let datas = Object.values(this.config.data);
+            this.setValues(datas);
         }
     }
 
@@ -41,7 +73,7 @@ class Select2Vanilla {
 
         this.input = document.createElement('input');
         this.input.type = 'text';
-        this.input.classList.add('s2v__search');
+        this.input.classList.add('s2v__search', 'form-control');
         this.input.placeholder = 'Sélectionner ou saisir';
 
         this.selectionDiv.appendChild(this.input);
@@ -53,9 +85,9 @@ class Select2Vanilla {
         const ul = document.createElement('ul');
         ul.classList.add('s2v__options');
 
-        // Remplir les options depuis config.choices ou depuis <select>
-        if (this.config.choices.length > 0) {
-            this.config.choices.forEach(choice => {
+        if (Object.values(this.config.choices).length > 0) {
+            let choices = Object.values(this.config.choices);
+            choices.forEach(choice => {
                 const li = document.createElement('li');
                 li.textContent = choice.label || choice;
                 li.dataset.value = choice.value || choice;
@@ -73,7 +105,6 @@ class Select2Vanilla {
         }
 
         this.dropdown.appendChild(ul);
-
         this.container.appendChild(this.selectionDiv);
         this.container.appendChild(this.dropdown);
 
@@ -84,7 +115,6 @@ class Select2Vanilla {
     }
 
     initEvents() {
-        // Clic sur une option
         this.options.forEach(option => {
             option.addEventListener('click', () => {
                 this.addSelectedValue(option.dataset.value, option.textContent);
@@ -95,32 +125,27 @@ class Select2Vanilla {
             });
         });
 
-        // Clic sur la sélection pour toggle dropdown
         this.selectionDiv.addEventListener('click', () => {
             this.input.focus();
             this.toggleDropdown();
         });
 
-        // Input de recherche
         this.input.addEventListener('input', (e) => {
             this.filterOptions(e.target.value);
             this.toggleDropdown(true);
         });
 
-        // Validation avec Enter
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const value = this.input.value.trim();
                 if (value === '') return;
-
                 const match = this.options.find(opt => opt.textContent.toLowerCase() === value.toLowerCase());
                 if (match) {
                     this.addSelectedValue(match.dataset.value, match.textContent);
                 } else {
                     this.addSelectedValue(value, value);
                 }
-
                 this.input.value = '';
                 this.filterOptions('');
                 this.toggleDropdown(false);
@@ -138,6 +163,12 @@ class Select2Vanilla {
 
         this.selectedValues.push(value);
 
+        // Ajouter la nouvelle option à la liste des options
+        const option = document.createElement('option');
+        option.value = value;
+        option.text = label;
+        this.select.appendChild(option);
+
         const span = document.createElement('span');
         span.classList.add('s2v__selected');
         span.textContent = label;
@@ -153,16 +184,19 @@ class Select2Vanilla {
         span.appendChild(removeBtn);
         this.selectionDiv.insertBefore(span, this.input);
 
-        // Sélectionne dans le select caché si option existe
+        // Mettre à jour la liste des options disponibles
+        const li = document.createElement('li');
+        li.textContent = option.textContent;
+        li.dataset.value = option.value;
+        this.options.push(li);
+
         if (this.select) {
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) optionInSelect.selected = true;
         }
 
-        // ajout de la valeur sélectionnée dans div.selected : partie selected de Select2Type
         let hiddenSelected = this.selected.querySelector("input[value='" + value + "']");
         if (!hiddenSelected) {
-            // si la valeur n'existe pas, on crée cette dernière
             hiddenSelected = document.createElement('input');
             hiddenSelected.type = 'hidden';
             hiddenSelected.value = value;
@@ -176,20 +210,34 @@ class Select2Vanilla {
             hiddenSelected.setAttribute('name', hiddenInputName);
             this.selected.appendChild(hiddenSelected);
         }
-        // dans le cas ou la valeur est déjà présente, on ne fait rien pour éviter les doublons
+
+        this.triggerEvent('change', { value: value, label: label });
     }
 
     removeSelectedValue(value, spanElement) {
         this.selectedValues = this.selectedValues.filter(v => v !== value);
         spanElement.remove();
 
-        // Déselectionne dans le select caché
+        // Supprimer l'option de la liste des options
+        const optionIndex = this.options.findIndex(option => option.value === value);
+        if (optionIndex !== -1) {
+            this.options.splice(optionIndex, 1);
+        }
+
+        // Mettre à jour la liste des options disponibles
+        this.select.innerHTML = '';
+        this.options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.text = option.label;
+            this.select.appendChild(optionElement);
+        });
+
         if (this.select) {
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) optionInSelect.selected = false;
         }
 
-        // suppression dans div.selected de la valeur sélectionnée
         const hiddenInput = this.selected.querySelector('input[value="' + value + '"]');
         if (hiddenInput) {
             hiddenInput.remove();
@@ -200,9 +248,12 @@ class Select2Vanilla {
 
     filterOptions(searchValue) {
         const lowerSearch = searchValue.toLowerCase();
+        //this.options = document.querySelectorAll('.s2v__options li');
         this.options.forEach(opt => {
-            opt.style.display = opt.textContent.toLowerCase().includes(lowerSearch) ? 'block' : 'none';
+            opt.style.display = (opt?.textContent?.toLowerCase().includes(lowerSearch)) ? 'block' : 'none';
         });
+
+        this.triggerEvent('filter', { query: searchValue, options: this.options });
     }
 
     toggleDropdown(forceOpen = null) {
@@ -233,13 +284,17 @@ class Select2Vanilla {
     setValues(valuesArray) {
         if (!Array.isArray(valuesArray)) return;
 
-        valuesArray.forEach(value => {
-            const option = this.options.find(opt => opt.dataset.value === value);
+        valuesArray.forEach(item => {
+            const option = this.options.find(opt => opt.dataset.value === item.value);
             if (option) {
                 this.addSelectedValue(option.dataset.value, option.textContent);
             } else {
-                this.addSelectedValue(value, value);
+                this.addSelectedValue(item.value, item.label);
             }
         });
     }
+
 }
+
+// ✅ Rendre disponible globalement
+window.Select2Vanilla = new Select2Vanilla();
