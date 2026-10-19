@@ -5,12 +5,41 @@ class Select2Vanilla {
             return;
         }
         this.initialize(selectElement, args);
+    }
 
-        // Ajouter des événements
+    initialize(selectElement, args = {}) {
+        this.select = selectElement || null;
         this.events = {
             change: [],
             filter: []
         };
+        this.config = Object.assign({
+            placeholder: 'Choisir ou saisir',
+            choices: [],
+            data: [],
+            multiple: false,
+            allow_add: false,
+            removeIconHtml: '×'
+        }, args);
+        this.container = null;
+        this.selectionDiv = null;
+        this.input = null;
+        this.dropdown = null;
+        this.options = [];
+        this.selectedValues = [];
+        this.closeOnOutsideClickHandler = null;
+
+        if (this.select) {
+            this.selected = this.select.parentNode.querySelector('.selected');
+            if (!this.selected) {
+                this.selected = document.createElement('div');
+                this.selected.classList.add('selected');
+                this.select.parentNode.insertBefore(this.selected, this.select.nextSibling);
+            }
+            this.init();
+        } else {
+            this.selected = null;
+        }
     }
 
     // Déclencher les événements
@@ -22,43 +51,28 @@ class Select2Vanilla {
             };
         }
 
-        this.events[eventName].forEach(function (callback) {
-            callback(data);
-        });
+        if (this.events[eventName]) {
+            this.events[eventName].forEach(function (callback) {
+                callback(data);
+            });
+        }
     };
 
     setOption(optionName, value) {
-        this.options[optionName] = value;
+        if (this.config) {
+            this.config[optionName] = value;
+        }
     }
 
     getOption(optionName) {
-        return this.options[optionName];
-    }
-
-    initialize(selectElement, args = {}) {
-        this.select = selectElement;
-        this.selected = this.select.parentNode.querySelector('.selected');
-        this.config = Object.assign({
-            placeholder: 'Choisir ou saisir',
-            choices: [],
-            data: [],
-            multiple: false,
-            allow_add: false
-        }, args);
-        this.container = null;
-        this.selectionDiv = null;
-        this.input = null;
-        this.dropdown = null;
-        this.options = [];
-        this.selectedValues = [];
-        this.init();
+        return this.config ? this.config[optionName] : undefined;
     }
 
     init() {
         this.buildCustomSelect();
         this.initEvents();
         this.closeOnOutsideClick();
-        if (Object.values(this.config.data).length > 0) {
+        if (this.config && Object.values(this.config.data).length > 0) {
             let datas = Object.values(this.config.data);
             this.setValues(datas);
         }
@@ -74,7 +88,7 @@ class Select2Vanilla {
         this.input = document.createElement('input');
         this.input.type = 'text';
         this.input.classList.add('s2v__search', 'form-control');
-        this.input.placeholder = 'Sélectionner ou saisir';
+        this.input.placeholder = this.config.placeholder || 'Sélectionner ou saisir';
 
         this.selectionDiv.appendChild(this.input);
 
@@ -85,7 +99,7 @@ class Select2Vanilla {
         const ul = document.createElement('ul');
         ul.classList.add('s2v__options');
 
-        if (Object.values(this.config.choices).length > 0) {
+        if (this.config && Object.values(this.config.choices).length > 0) {
             let choices = Object.values(this.config.choices);
             choices.forEach(choice => {
                 const li = document.createElement('li');
@@ -115,6 +129,8 @@ class Select2Vanilla {
     }
 
     initEvents() {
+        if (!this.options) return;
+
         this.options.forEach(option => {
             option.addEventListener('click', () => {
                 this.addSelectedValue(option.dataset.value, option.textContent);
@@ -155,6 +171,7 @@ class Select2Vanilla {
     }
 
     addSelectedValue(value, label) {
+        if (!this.select) return;
         if (!this.config.multiple && this.selectedValues.length > 0) {
             this.reset();
         }
@@ -176,8 +193,10 @@ class Select2Vanilla {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.classList.add('s2v__remove');
-        removeBtn.innerHTML = '&times;';
-        removeBtn.addEventListener('click', () => {
+        removeBtn.innerHTML = this.config.removeIconHtml || '×';
+        removeBtn.setAttribute('aria-label', 'Supprimer');
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             this.removeSelectedValue(value, span);
         });
 
@@ -195,20 +214,24 @@ class Select2Vanilla {
             if (optionInSelect) optionInSelect.selected = true;
         }
 
-        let hiddenSelected = this.selected.querySelector("input[value='" + value + "']");
-        if (!hiddenSelected) {
-            hiddenSelected = document.createElement('input');
-            hiddenSelected.type = 'hidden';
-            hiddenSelected.value = value;
-            let hiddenInputId = this.selected.getAttribute('id');
+        if (this.selected) {
+            let hiddenInputId = null;
             const hiddenInputs = this.selected.querySelectorAll('input[type="hidden"]');
             const idx = hiddenInputs.length;
-            hiddenInputId += '_' + idx;
-            hiddenSelected.setAttribute('id', hiddenInputId);
-            const parts = hiddenInputId.split('_');
-            const hiddenInputName = parts[0] + parts.slice(1).map(p => `[${p}]`).join('');
-            hiddenSelected.setAttribute('name', hiddenInputName);
-            this.selected.appendChild(hiddenSelected);
+            const baseId = this.selected.getAttribute('id') || 's2v-hidden';
+            hiddenInputId = baseId + '_' + idx;
+
+            let hiddenSelected = this.selected.querySelector("input[value='" + value + "']");
+            if (!hiddenSelected) {
+                hiddenSelected = document.createElement('input');
+                hiddenSelected.type = 'hidden';
+                hiddenSelected.value = value;
+                hiddenSelected.setAttribute('id', hiddenInputId);
+                const parts = hiddenInputId.split('_');
+                const hiddenInputName = parts[0] + parts.slice(1).map(p => `[${p}]`).join('');
+                hiddenSelected.setAttribute('name', hiddenInputName);
+                this.selected.appendChild(hiddenSelected);
+            }
         }
 
         this.triggerEvent('change', { value: value, label: label });
@@ -216,39 +239,43 @@ class Select2Vanilla {
 
     removeSelectedValue(value, spanElement) {
         this.selectedValues = this.selectedValues.filter(v => v !== value);
-        spanElement.remove();
+        if (spanElement && spanElement.parentNode) {
+            spanElement.remove();
+        }
 
-        // Supprimer l'option de la liste des options
-        const optionIndex = this.options.findIndex(option => option.value === value);
+        // Supprimer l'option de la liste des options (this.options contient des <li>)
+        const optionIndex = this.options.findIndex(option => option.dataset.value === value);
         if (optionIndex !== -1) {
             this.options.splice(optionIndex, 1);
         }
 
         // Mettre à jour la liste des options disponibles
-        this.select.innerHTML = '';
-        this.options.forEach(option => {
-            const optionElement = document.createElement('option');
-            optionElement.value = option.value;
-            optionElement.text = option.label;
-            this.select.appendChild(optionElement);
-        });
-
         if (this.select) {
+            this.select.innerHTML = '';
+            this.options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.dataset.value;
+                optionElement.text = option.textContent;
+                this.select.appendChild(optionElement);
+            });
+
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) optionInSelect.selected = false;
         }
 
-        const hiddenInput = this.selected.querySelector('input[value="' + value + '"]');
-        if (hiddenInput) {
-            hiddenInput.remove();
-        } else {
-            console.log('CollectionType Valeur non trouvée : ' + value);
+        if (this.selected) {
+            const hiddenInput = this.selected.querySelector('input[value="' + value + '"]');
+            if (hiddenInput) {
+                hiddenInput.remove();
+            }
         }
+
+        this.triggerEvent('change', { value: value, label: null, removed: true });
     }
 
     filterOptions(searchValue) {
-        const lowerSearch = searchValue.toLowerCase();
-        //this.options = document.querySelectorAll('.s2v__options li');
+        if (!this.options) return;
+        const lowerSearch = (searchValue || '').toLowerCase();
         this.options.forEach(opt => {
             opt.style.display = (opt?.textContent?.toLowerCase().includes(lowerSearch)) ? 'block' : 'none';
         });
@@ -257,17 +284,19 @@ class Select2Vanilla {
     }
 
     toggleDropdown(forceOpen = null) {
+        if (!this.dropdown) return;
         const isOpen = this.dropdown.style.display === 'block';
         const shouldOpen = forceOpen !== null ? forceOpen : !isOpen;
         this.dropdown.style.display = shouldOpen ? 'block' : 'none';
     }
 
     closeOnOutsideClick() {
-        document.addEventListener('click', (e) => {
+        this.closeOnOutsideClickHandler = (e) => {
             if (!this.container.contains(e.target)) {
                 this.toggleDropdown(false);
             }
-        });
+        };
+        document.addEventListener('click', this.closeOnOutsideClickHandler);
     }
 
     getValues() {
@@ -275,10 +304,16 @@ class Select2Vanilla {
     }
 
     reset() {
-        this.selectionDiv.querySelectorAll('.s2v__selected').forEach(span => span.remove());
-        Array.from(this.select.options).forEach(option => option.selected = false);
+        if (this.selectionDiv) {
+            this.selectionDiv.querySelectorAll('.s2v__selected').forEach(span => span.remove());
+        }
+        if (this.select) {
+            Array.from(this.select.options).forEach(option => option.selected = false);
+        }
         this.selectedValues = [];
-        this.selected.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+        if (this.selected) {
+            this.selected.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+        }
     }
 
     setValues(valuesArray) {
@@ -294,7 +329,26 @@ class Select2Vanilla {
         });
     }
 
+    destroy() {
+        // Retirer les écouteurs globaux
+        if (this.closeOnOutsideClickHandler) {
+            document.removeEventListener('click', this.closeOnOutsideClickHandler);
+            this.closeOnOutsideClickHandler = null;
+        }
+        // Vider les événements personnalisés
+        this.events = { change: [], filter: [] };
+        // Supprimer le conteneur custom du DOM
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
+        }
+        // Restaurer l'affichage du select d'origine
+        if (this.select) {
+            this.select.style.display = '';
+            Array.from(this.select.options).forEach(option => option.selected = false);
+        }
+        this.selectedValues = [];
+    }
 }
 
-// ✅ Rendre disponible globalement
-window.Select2Vanilla = new Select2Vanilla();
+// ✅ Rendre disponible globalement (classe, pas une instance)
+window.Select2Vanilla = Select2Vanilla;

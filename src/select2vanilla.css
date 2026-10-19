@@ -40,8 +40,9 @@
 }
 
 .s2v__selected {
+    position: relative;
     background: #e0e0e0;
-    padding: 5px 8px;
+    padding: 5px 28px 5px 8px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -49,14 +50,22 @@
 }
 
 .s2v__remove {
+    position: absolute;
+    top: 2px;
+    right: 4px;
     background: none;
     border: none;
-    color: #333;
+    color: #666;
     cursor: pointer;
     font-size: 14px;
+    font-weight: bold;
     padding: 0;
     margin: 0;
     line-height: 1;
+}
+
+.s2v__remove:hover {
+    color: #c00;
 }
 
 .s2v__dropdown {
