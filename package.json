@@ -1,0 +1,27 @@
+{
+  "name": "select2vanilla",
+  "version": "1.0.0",
+  "description": "Adaptation de la librairie jQuery Select2 en JavaScript (Vanilla) / Vanilla JavaScript adaptation of the jQuery Select2 library.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celtic34fr/select2vanilla.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/celtic34fr/select2vanilla/issues"
+  },
+  "homepage": "https://github.com/celtic34fr/select2vanilla#readme",
+  "devDependencies": {
+    "jsdom": "^30.1.3",
+    "vitest": "^5.0.5"
+  }
+}

@@ -29,7 +29,7 @@ class Select2Vanilla {
         this.selectedValues = [];
         this.closeOnOutsideClickHandler = null;
 
-        if (this.select) {
+        if (this.select && this.select.parentNode) {
             this.selected = this.select.parentNode.querySelector('.selected');
             if (!this.selected) {
                 this.selected = document.createElement('div');
@@ -193,7 +193,7 @@ class Select2Vanilla {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.classList.add('s2v__remove');
-        removeBtn.innerHTML = this.config.removeIconHtml || '×';
+        removeBtn.textContent = this.config.removeIconHtml || '×';
         removeBtn.setAttribute('aria-label', 'Supprimer');
         removeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -251,16 +251,10 @@ class Select2Vanilla {
 
         // Mettre à jour la liste des options disponibles
         if (this.select) {
-            this.select.innerHTML = '';
-            this.options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option.dataset.value;
-                optionElement.text = option.textContent;
-                this.select.appendChild(optionElement);
-            });
-
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
-            if (optionInSelect) optionInSelect.selected = false;
+            if (optionInSelect) {
+                optionInSelect.remove();
+            }
         }
 
         if (this.selected) {
@@ -352,3 +346,5 @@ class Select2Vanilla {
 
 // ✅ Rendre disponible globalement (classe, pas une instance)
 window.Select2Vanilla = Select2Vanilla;
+
+export default Select2Vanilla;

@@ -164,34 +164,36 @@ It is intended for contributors, maintainers, and users who want to understand w
 
 ## 6. Tests
 
-### 6.1 Unit tests
+### 6.1 Unit tests (implemented and passed)
 
-**Current state:** The file `test/select2vanilla.test.js` contains only a few assertions on class export and method existence.
+**Current state:** The file `test/select2vanilla.test.js` contains 17 unit tests covering:
+- Class export and prototype methods
+- Initialization on a real `<select>` and `null`/`undefined` handling
+- Multiple and single selection, no duplicates
+- `addSelectedValue`, `removeSelectedValue`, `getValues`, `setValues`
+- `reset`, `filterOptions`, `toggleDropdown`, `destroy`
+- Custom `removeIconHtml` option
+- `change` events (add and remove)
 
-**To do:**
-- Test `addSelectedValue()`: verifies the value is added to `selectedValues` and an `<option>` is created in the `<select>`
-- Test `removeSelectedValue()`: verifies the value is removed and the `.s2v__selected` element is removed from the DOM
-- Test `getValues()`: returns the array of values correctly
-- Test `reset()`: empties `selectedValues` and removes all `.s2v__selected`
-- Test `destroy()`: removes the container from the DOM and detaches `document.click` listeners
-- Test `filterOptions()`: hides/shows `<li>` based on the search query
-- Test `toggleDropdown()`: switches `display: none` to `display: block` and vice versa
+**Status:** 17 tests passed with Vitest + jsdom.
 
 ### 6.2 DOM integration tests
 
 **To do:**
-- Test initialization on a real `<select>` with multiple `<option>`
-- Simulate a click on an option and verify the pill appears
-- Simulate a click on the remove cross and verify the pill disappears and the option is no longer selected
-- Simulate typing in the input and verify non-matching options are hidden
-- Test multiple mode: select multiple values, display multiple pills
+- Test initialization on a real `<select>` with multiple `<option>` (partially covered)
+- Simulate a click on an option and verify the pill appears (covered)
+- Simulate a click on the remove cross and verify the pill disappears and the option is no longer selected (covered)
+- Simulate typing in the input and verify non-matching options are hidden (covered)
+- Test multiple mode: select multiple values, display multiple pills (covered)
 - Test dropdown closure by clicking outside
 
-### 6.3 Test environment
+### 6.3 Test environment (configured)
 
-**To do:**
-- Configure a test framework (Jest, Vitest, or Mocha + Chai)
-- Add an `npm test` script in `package.json` (if NPM is adopted later) or document how to run tests with the chosen tool
+**Current state:**
+- `package.json` created with `vitest` and `jsdom` as dev dependencies
+- `npm test` script configured (`vitest run`)
+- `vitest.config.js` with `jsdom` environment and `globals: true`
+- ES module export added in `src/select2vanilla.js` (`export default Select2Vanilla`)
 
 ---
 
