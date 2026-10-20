@@ -1,3 +1,20 @@
+# Dependencies
+/node_modules/
+/vendor/
+/package-lock.json
+/composer.lock
+
+# Build / output
+/dist/
+/build/
+/public/build/
+
+# Environment
+/.env
+/.env.local
+/.env.*.local
+
+# IDE
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -11,5 +28,16 @@
 # Built Visual Studio Code Extensions
 *.vsix
 
+# OS
+.DS_Store
+Thumbs.db
 
-TODO.md
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tests
+/coverage/
+/.phpunit.result.cache
