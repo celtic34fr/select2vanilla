@@ -1,6 +1,6 @@
 {
   "name": "@celtic34fr/select2vanilla",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adaptation de la librairie jQuery Select2 en JavaScript (Vanilla) / Vanilla JavaScript adaptation of the jQuery Select2 library.",
   "license": "MIT",
   "author": "celtic34fr",
