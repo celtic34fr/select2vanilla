@@ -1,0 +1,5 @@
+/test export-ignore
+/.github export-ignore
+/vitest.config.js export-ignore
+/package-lock.json export-ignore
+/.gitattributes export-ignore

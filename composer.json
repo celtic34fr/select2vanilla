@@ -1,20 +1,18 @@
 {
-    "name": "celtic34fr/select2vanilla",
-    "type": "library",
-    "description": "Adaptation de la librairie jQuery Select2 en JavaScript pur (Vanilla) / Vanilla JavaScript adaptation of the jQuery Select2 library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "celtic34fr"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/celtic34fr/select2vanilla/issues",
-        "source": "https://github.com/celtic34fr/select2vanilla"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-main": "1.0-dev"
-        }
+  "name": "celtic34fr/select2vanilla",
+  "description": "Adaptation de la librairie jQuery Select2 en JavaScript pur (Vanilla) / Vanilla JavaScript adaptation of the jQuery Select2 library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    { "name": "celtic34fr" }
+  ],
+  "support": {
+    "issues": "https://github.com/celtic34fr/select2vanilla/issues",
+    "source": "https://github.com/celtic34fr/select2vanilla"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "0.1.x-dev"
     }
+  }
 }

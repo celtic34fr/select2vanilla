@@ -1,25 +1,36 @@
 {
-  "name": "select2vanilla",
-  "version": "1.0.0",
+  "name": "@celtic34fr/select2vanilla",
+  "version": "0.1.0",
   "description": "Adaptation de la librairie jQuery Select2 en JavaScript (Vanilla) / Vanilla JavaScript adaptation of the jQuery Select2 library.",
-  "main": "index.js",
+  "license": "MIT",
+  "author": "celtic34fr",
+  "type": "module",
+  "main": "./src/select2vanilla.js",
+  "module": "./src/select2vanilla.js",
+  "exports": {
+    ".": "./src/select2vanilla.js",
+    "./select2vanilla.css": "./src/select2vanilla.css"
+  },
+  "files": ["src"],
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/celtic34fr/select2vanilla.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/celtic34fr/select2vanilla/issues"
   },
   "homepage": "https://github.com/celtic34fr/select2vanilla#readme",
+  "keywords": ["select2", "select", "dropdown", "autocomplete", "vanilla", "javascript"],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "jsdom": "^30.1.3",
     "vitest": "^5.0.5"
