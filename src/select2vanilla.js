@@ -25,6 +25,7 @@ class Select2Vanilla {
         this.selectionDiv = null;
         this.input = null;
         this.dropdown = null;
+        this.optionsList = null;
         this.options = [];
         this.selectedValues = [];
         this.closeOnOutsideClickHandler = null;
@@ -72,9 +73,25 @@ class Select2Vanilla {
         this.buildCustomSelect();
         this.initEvents();
         this.closeOnOutsideClick();
+
         if (this.config && Object.values(this.config.data).length > 0) {
             let datas = Object.values(this.config.data);
             this.setValues(datas);
+        } else if (this.select) {
+            // Pré-sélection : reprend les <option selected> rendues par le
+            // serveur (formulaire d'édition, valeur par défaut, etc.). On se
+            // base sur l'attribut HTML plutôt que sur `selectedOptions`, car
+            // un <select> simple sélectionne implicitement sa première option.
+            const preselected = Array.from(this.select.options)
+                .filter(option => option.defaultSelected && option.value !== '')
+                .map(option => ({
+                    value: option.value,
+                    label: option.textContent
+                }));
+
+            if (preselected.length > 0) {
+                this.setValues(preselected);
+            }
         }
     }
 
@@ -98,6 +115,7 @@ class Select2Vanilla {
 
         const ul = document.createElement('ul');
         ul.classList.add('s2v__options');
+        this.optionsList = ul;
 
         if (this.config && Object.values(this.config.choices).length > 0) {
             let choices = Object.values(this.config.choices);
@@ -128,17 +146,21 @@ class Select2Vanilla {
         }
     }
 
+    bindOptionEvents(option) {
+        option.addEventListener('click', () => {
+            this.addSelectedValue(option.dataset.value, option.textContent);
+            this.input.value = '';
+            this.filterOptions('');
+            this.toggleDropdown(false);
+            this.input.focus();
+        });
+    }
+
     initEvents() {
         if (!this.options) return;
 
         this.options.forEach(option => {
-            option.addEventListener('click', () => {
-                this.addSelectedValue(option.dataset.value, option.textContent);
-                this.input.value = '';
-                this.filterOptions('');
-                this.toggleDropdown(false);
-                this.input.focus();
-            });
+            this.bindOptionEvents(option);
         });
 
         this.selectionDiv.addEventListener('click', () => {
@@ -159,7 +181,7 @@ class Select2Vanilla {
                 const match = this.options.find(opt => opt.textContent.toLowerCase() === value.toLowerCase());
                 if (match) {
                     this.addSelectedValue(match.dataset.value, match.textContent);
-                } else {
+                } else if (this.config.allow_add) {
                     this.addSelectedValue(value, value);
                 }
                 this.input.value = '';
@@ -180,11 +202,16 @@ class Select2Vanilla {
 
         this.selectedValues.push(value);
 
-        // Ajouter la nouvelle option à la liste des options
-        const option = document.createElement('option');
-        option.value = value;
-        option.text = label;
-        this.select.appendChild(option);
+        // Réutiliser l'<option> existante : ne jamais ajouter de doublon dans
+        // le <select> natif (sinon la valeur est soumise plusieurs fois).
+        let option = Array.from(this.select.options).find(opt => opt.value === value);
+        if (!option) {
+            option = document.createElement('option');
+            option.value = value;
+            option.text = label;
+            this.select.appendChild(option);
+        }
+        option.selected = true;
 
         const span = document.createElement('span');
         span.classList.add('s2v__selected');
@@ -193,7 +220,7 @@ class Select2Vanilla {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.classList.add('s2v__remove');
-        removeBtn.textContent = this.config.removeIconHtml || '×';
+        removeBtn.innerHTML = this.config.removeIconHtml || '×';
         removeBtn.setAttribute('aria-label', 'Supprimer');
         removeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -203,15 +230,18 @@ class Select2Vanilla {
         span.appendChild(removeBtn);
         this.selectionDiv.insertBefore(span, this.input);
 
-        // Mettre à jour la liste des options disponibles
-        const li = document.createElement('li');
-        li.textContent = option.textContent;
-        li.dataset.value = option.value;
-        this.options.push(li);
+        // Ne pas dupliquer non plus le <li> du dropdown. Pour une valeur libre
+        // (allow_add), on l'ajoute réellement à la liste et on l'écoute.
+        if (!this.options.some(li => li.dataset.value === value)) {
+            const li = document.createElement('li');
+            li.textContent = label;
+            li.dataset.value = value;
+            this.options.push(li);
 
-        if (this.select) {
-            const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
-            if (optionInSelect) optionInSelect.selected = true;
+            if (this.optionsList) {
+                this.optionsList.appendChild(li);
+                this.bindOptionEvents(li);
+            }
         }
 
         if (this.selected) {
@@ -243,17 +273,12 @@ class Select2Vanilla {
             spanElement.remove();
         }
 
-        // Supprimer l'option de la liste des options (this.options contient des <li>)
-        const optionIndex = this.options.findIndex(option => option.dataset.value === value);
-        if (optionIndex !== -1) {
-            this.options.splice(optionIndex, 1);
-        }
-
-        // Mettre à jour la liste des options disponibles
+        // Désélectionner l'<option> existante sans la supprimer : les autres
+        // sélections restent intactes et la valeur peut être re-sélectionnée.
         if (this.select) {
             const optionInSelect = Array.from(this.select.options).find(opt => opt.value === value);
             if (optionInSelect) {
-                optionInSelect.remove();
+                optionInSelect.selected = false;
             }
         }
 
@@ -335,10 +360,12 @@ class Select2Vanilla {
         if (this.container && this.container.parentNode) {
             this.container.parentNode.removeChild(this.container);
         }
-        // Restaurer l'affichage du select d'origine
+        // Restaurer l'affichage du select d'origine en conservant la sélection
         if (this.select) {
             this.select.style.display = '';
-            Array.from(this.select.options).forEach(option => option.selected = false);
+            Array.from(this.select.options).forEach(option => {
+                option.selected = this.selectedValues.includes(option.value);
+            });
         }
         this.selectedValues = [];
     }

@@ -166,7 +166,7 @@ Il est destiné aux contributeurs, mainteneurs et utilisateurs qui souhaitent co
 
 ### 6.1 Tests unitaires (implémentés et passés)
 
-**État actuel :** Le fichier `test/select2vanilla.test.js` contient 17 tests unitaires couvrant :
+**État actuel :** Le fichier `test/select2vanilla.test.js` contient 21 tests unitaires couvrant :
 - Export de la classe et méthodes du prototype
 - Initialisation sur un vrai `<select>` et gestion du `null`/`undefined`
 - Sélection multiple et simple, pas de doublons
@@ -175,7 +175,7 @@ Il est destiné aux contributeurs, mainteneurs et utilisateurs qui souhaitent co
 - Option `removeIconHtml` personnalisée
 - Événements `change` (ajout et suppression)
 
-**Statut :** 17 tests passés avec Vitest + jsdom.
+**Statut :** 21 tests passés avec Vitest + jsdom.
 
 ### 6.2 Tests d'intégration DOM
 

@@ -175,7 +175,7 @@ It is intended for contributors, maintainers, and users who want to understand w
 - Custom `removeIconHtml` option
 - `change` events (add and remove)
 
-**Status:** 17 tests passed with Vitest + jsdom.
+**Status:** 21 tests passed with Vitest + jsdom.
 
 ### 6.2 DOM integration tests
 

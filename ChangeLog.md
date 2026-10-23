@@ -1,5 +1,24 @@
 # ChangeLog — celtic34fr/select2vanilla
 
+## [0.1.2] — 2026-10-23
+
+Correction du comportement en sélection multiple et fiabilisation du `<select>` natif.
+
+### 🐛 Corrections de bugs (`src/select2vanilla.js`)
+
+- **Plus de doublon dans le `<select>`** : `addSelectedValue()` réutilise l'`<option>` existante au lieu d'en ajouter une seconde. La valeur n'est donc plus soumise deux fois par le formulaire.
+- **Plus de doublon dans le dropdown** : le `<li>` correspondant n'est plus poussé une deuxième fois dans `this.options`.
+- **Suppression sans perte des autres sélections** : `removeSelectedValue()` passe simplement l'`<option>` à `selected = false` au lieu de la supprimer ou de reconstruire tout le `<select>`. La valeur reste re-sélectionnable.
+- **Pré-sélection au chargement** : les `<option selected>` rendues par le serveur (formulaire d'édition, valeur par défaut) sont reprises dans les bulles. On se base sur l'attribut HTML et non sur `selectedOptions`, pour ne pas pré-sélectionner implicitement la première option d'un `<select>` simple.
+- **Option `allow_add` respectée** : la saisie libre via la touche Entrée n'ajoute une valeur que si `allow_add: true`.
+- **Icône de suppression HTML** : `removeIconHtml` est de nouveau inséré via `innerHTML`, conformément à la documentation (ex. `<i class="fa fa-times"></i>`).
+- **`destroy()`** : restaure l'affichage du `<select>` en conservant les valeurs sélectionnées.
+
+### 🧪 Tests (`test/select2vanilla.test.js`)
+
+- **21 tests unitaires** (contre 17) : ajout de la non-duplication dans le DOM, de la conservation des autres sélections, de la re-sélection après suppression, de la pré-sélection serveur et du respect de `allow_add`.
+- Tous les tests passent (21/21).
+
 ## [0.1.0] — 2026-10-20
 
 Première version fonctionnelle de la librairie Select2Vanilla.

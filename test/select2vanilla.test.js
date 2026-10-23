@@ -67,6 +67,19 @@ describe('Select2Vanilla', () => {
         instance.addSelectedValue('fr', 'France');
 
         expect(instance.getValues()).toEqual(['fr']);
+        expect(select.querySelectorAll('option[value="fr"]')).toHaveLength(1);
+        expect(container.querySelectorAll('.s2v__options li[data-value="fr"]')).toHaveLength(1);
+    });
+
+    it('should preselect the options already selected in the select', () => {
+        select.querySelector('option[value="be"]').setAttribute('selected', 'selected');
+
+        const instance = new Select2Vanilla(select, { multiple: true });
+
+        expect(instance.getValues()).toEqual(['be']);
+        expect(container.querySelectorAll('.s2v__selected')).toHaveLength(1);
+        expect(select.querySelectorAll('option[value="be"]')).toHaveLength(1);
+        expect(select.querySelector('option[value="be"]').selected).toBe(true);
     });
 
     it('should replace value in single mode', () => {
@@ -89,6 +102,23 @@ describe('Select2Vanilla', () => {
         expect(instance.getValues()).toContain('be');
         expect(container.querySelectorAll('.s2v__selected')).toHaveLength(1);
         expect(select.querySelector('option[value="fr"]').selected).toBe(false);
+        // Les autres sélections doivent rester actives dans le <select> natif.
+        expect(select.querySelector('option[value="be"]').selected).toBe(true);
+        expect(select.querySelectorAll('option[value="fr"]')).toHaveLength(1);
+    });
+
+    it('should allow selecting a removed value again', () => {
+        const instance = new Select2Vanilla(select, { multiple: true });
+        instance.addSelectedValue('fr', 'France');
+        instance.addSelectedValue('be', 'Belgique');
+
+        const span = container.querySelectorAll('.s2v__selected')[0];
+        instance.removeSelectedValue('fr', span);
+        instance.addSelectedValue('fr', 'France');
+
+        expect(instance.getValues()).toEqual(['be', 'fr']);
+        expect(select.querySelectorAll('option[value="fr"]')).toHaveLength(1);
+        expect(select.querySelector('option[value="fr"]').selected).toBe(true);
     });
 
     it('should return selected values', () => {
@@ -118,6 +148,25 @@ describe('Select2Vanilla', () => {
         ]);
 
         expect(instance.getValues()).toEqual(['fr', 'ch']);
+    });
+
+    it('should not add free text when allow_add is false', () => {
+        const instance = new Select2Vanilla(select, { multiple: true });
+        instance.input.value = 'Inconnu';
+        instance.input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+        expect(instance.getValues()).toEqual([]);
+        expect(select.querySelector('option[value="Inconnu"]')).toBeNull();
+    });
+
+    it('should add free text when allow_add is true', () => {
+        const instance = new Select2Vanilla(select, { multiple: true, allow_add: true });
+        instance.input.value = 'Inconnu';
+        instance.input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+        expect(instance.getValues()).toEqual(['Inconnu']);
+        expect(select.querySelector('option[value="Inconnu"]')).not.toBeNull();
+        expect(container.querySelectorAll('.s2v__options li[data-value="Inconnu"]')).toHaveLength(1);
     });
 
     it('should filter options by search text', () => {
